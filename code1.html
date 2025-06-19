@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Minimal Chat Log</title>
+  <style>
+    body { font-family: monospace; background: #f9f9f9; padding: 20px; }
+    #log {
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+    input { margin: 5px; }
+  </style>
+</head>
+<body>
+  <div id="log"></div>
+  <input id="username" placeholder="username">
+  <input id="message" placeholder="message">
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    let log = [];
+    const logDiv = document.getElementById('log');
+    const msgInput = document.getElementById('message');
+    const userInput = document.getElementById('username');
+
+    function renderLog() {
+      logDiv.textContent = log.join('\n');
+      logDiv.scrollTop = logDiv.scrollHeight; // Auto scroll to bottom
+    }
+
+    function sendMessage() {
+      const user = userInput.value.trim() || "anonymous";
+      const msg = msgInput.value.trim();
+      if (!msg) return;
+      const line = `Line ${log.length + 1} : ${user} : ${msg}`;
+      log.push(line);
+      renderLog();
+      msgInput.value = "";
+      msgInput.focus();
+    }
+
+    msgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    renderLog();
+  </script>
+</body>
+</html>
