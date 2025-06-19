@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Chat Log</title>
+  <style>
+    body { font-family: monospace; background: #f9f9f9; padding: 20px; }
+    #log {
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+    input { margin: 5px; }
+  </style>
+</head>
+<body>
+  <div id="log">Connecting to chat...</div>
+  <input id="username" placeholder="username">
+  <input id="message" placeholder="message">
+  <button onclick="sendMessage()">Send</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYCbDwk0tEpUow6k9_64w27U0t17rPu6Y",
+      authDomain: "gweb-3ac4a.firebaseapp.com",
+      projectId: "gweb-3ac4a",
+      storageBucket: "gweb-3ac4a.appspot.com",
+      messagingSenderId: "53703323067",
+      appId: "1:53703323067:web:e81dfd19794dca66cba89e",
+      databaseURL: "https://gweb-3ac4a-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const logDiv = document.getElementById('log');
+    const msgInput = document.getElementById('message');
+    const userInput = document.getElementById('username');
+    const messagesRef = ref(db, "messages");
+
+    const log = [];
+
+    function renderLog() {
+      logDiv.textContent = log.join('\n');
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function sendMessage() {
+      const user = userInput.value.trim() || "anonymous";
+      const msg = msgInput.value.trim();
+      if (!msg) return;
+
+      push(messagesRef, {
+        user: user,
+        msg: msg
+      });
+
+      msgInput.value = "";
+      msgInput.focus();
+    }
+
+    msgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    onChildAdded(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+      const line = `${log.length + 1} : ${data.user} : ${data.msg}`;
+      log.push(line);
+      renderLog();
+    });
+  </script>
+</body>
+</html>
